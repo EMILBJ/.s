@@ -1,0 +1,56 @@
+#include <tunables/global>
+
+/usr/bin/qbittorrent {
+  # Grundläggande abstraktioner som alltid finns på Debian
+  include <abstractions/base>
+  include <abstractions/nameservice-strict>
+  include <abstractions/desktop>
+  include <abstractions/ssl_certs>
+
+  # Nätverk: tillåt TCP/UDP över IPv4 och IPv6
+  network inet stream,
+  network inet dgram,
+  network inet6 stream,
+  network inet6 dgram,
+
+  # Tillåt qBittorrent‐binären att köras
+  /usr/bin/qbittorrent rix,
+
+  # Läsbehörighet till alla systembibliotek som programmet laddar
+  /lib/** mr,
+  /usr/lib/** mr,
+
+  # Behörighet till TLS‐certifikat
+  /etc/ssl/certs/** r,
+
+  # Kataloger för inställningar och cache
+  owner @{HOME}/.config/qBittorrent/** rwk,
+  owner @{HOME}/.cache/qBittorrent/** rwk,
+
+  # Tillåt qB att läsa .torrent‐filer i hemkatalogen
+  owner @{HOME}/**.torrent r,
+
+  # Tillåt qB att läsa alla mappar (men ej filer) i hemkatalogen
+  owner @{HOME}/ r,
+  owner @{HOME}/**/ r,
+  deny @{HOME}/**/.* r,    # blockera dolda filer/konfigar utanför ovan
+
+  # Huvud‐download‐katalog: ändra vid behov om du laddar till annan path
+  owner @{HOME}/Downloads/** rw,
+
+  # Temporära filer
+  owner /tmp/*.torrent rw,
+  owner /tmp/qBittorrent/* rwk,
+
+  # MPI (proc‐åtkomst) – används ibland internt av qBittorrent
+  owner @{PROC}/@{pids}/cmdline r,
+  owner @{PROC}/@{pids}/fd/ r,
+  owner @{PROC}/@{pids}/mountinfo r,
+  owner @{PROC}/@{pids}/mounts r,
+
+  # Tillgång till tty (terminal)
+  /dev/tty[0-9]* rw,
+
+  # Blockera allt annat
+  deny /** x,
+}
