@@ -1,56 +1,53 @@
 #include <tunables/global>
 
 /usr/bin/qbittorrent {
-  # Grundläggande abstraktioner som alltid finns på Debian
-  include <abstractions/base>
-  include <abstractions/desktop>
-  include <abstractions/ssl_certs>
+  # Kör binären
+  /usr/bin/qbittorrent rix,
 
-  # Tillåt qBittorrent att öppna TCP/UDP över IPv4 och IPv6
+  # Nätverk (torrentprotokollet använder både TCP och UDP):
   network inet stream,
   network inet dgram,
   network inet6 stream,
   network inet6 dgram,
 
-  # Kör binären
-  /usr/bin/qbittorrent rix,
-
-  # Bibliotek som programmet laddar (läs‐endast)
+  # Tillåt qBittorrent att läsa delade bibliotek (läs‐endast)
   /lib/** mr,
   /usr/lib/** mr,
+  /usr/lib/x86_64-linux-gnu/** mr,
 
-  # TLS‐certifikat
+  # TLS‐certifikat (om du använder krypterad tracker)
   /etc/ssl/certs/** r,
 
-  # Inställningar och cache (ändra om du kör annan sökväg)
+  # qBittorrent‐inställningar och cache (skriv/läs)
   owner @{HOME}/.config/qBittorrent/** rwk,
   owner @{HOME}/.cache/qBittorrent/** rwk,
 
-  # Läs .torrent‐filer i hemkatalogen
+  # Läs alla .torrent‐filer i hemkatalogen
   owner @{HOME}/**.torrent r,
 
-  # Läs rätt att traversera hemkatalogens mappar (ej dolda filer)
+  # Tillåt att traversera hemkatalogens mappar (men ej dolda filer)
   owner @{HOME}/ r,
   owner @{HOME}/**/ r,
   deny @{HOME}/**/.* r,
 
-  # Huvud‐nedladdningskatalog: justera efter din setup
+  # Huvud‐nedladdningsmapp (ändra om du har en annan sökväg)
   owner @{HOME}/Downloads/** rw,
 
-  # Temporära torrent‐filer
+  # Temporära torrentfiler
   owner /tmp/*.torrent rw,
-  owner /tmp/qBittorrent/* rwk,
+  owner /tmp/qBittorrent/** rwk,
 
   # Tillgång till /proc för intern status
   owner @{PROC}/@{pids}/cmdline r,
-  owner @{PROC}/@{pids}/fd/ r,
+  owner @{PROC}/@{pids}/fd/** r,
   owner @{PROC}/@{pids}/mountinfo r,
   owner @{PROC}/@{pids}/mounts r,
 
-  # Tillgång till tty (terminal)
+  # Terminal‐åtkomst (tty)
   /dev/tty[0-9]* rw,
 
-  # Blockera allt annat
+  # Blockera absolut allt annat
   deny /** x,
 }
+
 
