@@ -3,46 +3,45 @@
 /usr/bin/qbittorrent {
   # Grundläggande abstraktioner som alltid finns på Debian
   include <abstractions/base>
-  include <abstractions/nameservice-strict>
   include <abstractions/desktop>
   include <abstractions/ssl_certs>
 
-  # Nätverk: tillåt TCP/UDP över IPv4 och IPv6
+  # Tillåt qBittorrent att öppna TCP/UDP över IPv4 och IPv6
   network inet stream,
   network inet dgram,
   network inet6 stream,
   network inet6 dgram,
 
-  # Tillåt qBittorrent‐binären att köras
+  # Kör binären
   /usr/bin/qbittorrent rix,
 
-  # Läsbehörighet till alla systembibliotek som programmet laddar
+  # Bibliotek som programmet laddar (läs‐endast)
   /lib/** mr,
   /usr/lib/** mr,
 
-  # Behörighet till TLS‐certifikat
+  # TLS‐certifikat
   /etc/ssl/certs/** r,
 
-  # Kataloger för inställningar och cache
+  # Inställningar och cache (ändra om du kör annan sökväg)
   owner @{HOME}/.config/qBittorrent/** rwk,
   owner @{HOME}/.cache/qBittorrent/** rwk,
 
-  # Tillåt qB att läsa .torrent‐filer i hemkatalogen
+  # Läs .torrent‐filer i hemkatalogen
   owner @{HOME}/**.torrent r,
 
-  # Tillåt qB att läsa alla mappar (men ej filer) i hemkatalogen
+  # Läs rätt att traversera hemkatalogens mappar (ej dolda filer)
   owner @{HOME}/ r,
   owner @{HOME}/**/ r,
-  deny @{HOME}/**/.* r,    # blockera dolda filer/konfigar utanför ovan
+  deny @{HOME}/**/.* r,
 
-  # Huvud‐download‐katalog: ändra vid behov om du laddar till annan path
+  # Huvud‐nedladdningskatalog: justera efter din setup
   owner @{HOME}/Downloads/** rw,
 
-  # Temporära filer
+  # Temporära torrent‐filer
   owner /tmp/*.torrent rw,
   owner /tmp/qBittorrent/* rwk,
 
-  # MPI (proc‐åtkomst) – används ibland internt av qBittorrent
+  # Tillgång till /proc för intern status
   owner @{PROC}/@{pids}/cmdline r,
   owner @{PROC}/@{pids}/fd/ r,
   owner @{PROC}/@{pids}/mountinfo r,
@@ -54,3 +53,4 @@
   # Blockera allt annat
   deny /** x,
 }
+
