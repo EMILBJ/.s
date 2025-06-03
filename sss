@@ -1,53 +1,61 @@
-#include <tunables/global>
+# Inkludera bara globala variabler
+# (inga abstraktioner som saknas på Debian)
+#-------------------------------------------
+# /etc/apparmor.d/usr.bin.qbittorrent
+
+# Tunables/global definierar @{HOME}, @{PROC}, @{pids} osv.
+# Behöver inte några andra abstraktioner för qBittorrent.
+include <tunables/global>
 
 /usr/bin/qbittorrent {
   # Kör binären
   /usr/bin/qbittorrent rix,
 
-  # Nätverk (torrentprotokollet använder både TCP och UDP):
+  # Nätverk (torrent-protokollet använder både TCP och UDP):
   network inet stream,
   network inet dgram,
   network inet6 stream,
   network inet6 dgram,
 
-  # Tillåt qBittorrent att läsa delade bibliotek (läs‐endast)
+  # Tillåt qBittorrent att läsa systembibliotek (läs-endast):
   /lib/** mr,
   /usr/lib/** mr,
   /usr/lib/x86_64-linux-gnu/** mr,
 
-  # TLS‐certifikat (om du använder krypterad tracker)
+  # TLS-certifikat (om du använder krypterade trackers):
   /etc/ssl/certs/** r,
 
-  # qBittorrent‐inställningar och cache (skriv/läs)
+  # qBittorrent-inställningar + cache (läs/skriv/skapande):
   owner @{HOME}/.config/qBittorrent/** rwk,
   owner @{HOME}/.cache/qBittorrent/** rwk,
 
-  # Läs alla .torrent‐filer i hemkatalogen
+  # Läs alla .torrent-filer i hemkatalogen:
   owner @{HOME}/**.torrent r,
 
-  # Tillåt att traversera hemkatalogens mappar (men ej dolda filer)
+  # Tillåt att traversera hemkatalogens mappar (ej dolda filer):
   owner @{HOME}/ r,
   owner @{HOME}/**/ r,
   deny @{HOME}/**/.* r,
 
-  # Huvud‐nedladdningsmapp (ändra om du har en annan sökväg)
+  # Huvud-nedladdningsmapp (ändra här om du sparar på annan plats):
   owner @{HOME}/Downloads/** rw,
 
-  # Temporära torrentfiler
+  # Temporära torrentfiler:
   owner /tmp/*.torrent rw,
   owner /tmp/qBittorrent/** rwk,
 
-  # Tillgång till /proc för intern status
+  # /proc-åtkomst för intern status (används av qBittorrent):
   owner @{PROC}/@{pids}/cmdline r,
   owner @{PROC}/@{pids}/fd/** r,
   owner @{PROC}/@{pids}/mountinfo r,
   owner @{PROC}/@{pids}/mounts r,
 
-  # Terminal‐åtkomst (tty)
+  # Terminal-åtkomst (tty):
   /dev/tty[0-9]* rw,
 
-  # Blockera absolut allt annat
+  # Blockera allt annat (exekvering/filsystem-åtkomst):
   deny /** x,
 }
+
 
 
